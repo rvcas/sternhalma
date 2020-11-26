@@ -2,7 +2,7 @@ module Main exposing (Model, Msg(..), init, main, update, view)
 
 import Array exposing (Array)
 import Browser exposing (Document)
-import Html exposing (Html, button, div, main_, text)
+import Html exposing (Html, button, div, h1, main_, text)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 import Utils exposing (indexToColor, mapToList)
@@ -145,10 +145,17 @@ view model =
     }
 
 
+viewLayout : List (Html Msg) -> Html Msg
+viewLayout =
+    main_ [ class "container mx-auto flex flex-col justify-center items-center h-screen" ]
+
+
 viewSelectPlayer : () -> Html Msg
 viewSelectPlayer _ =
-    main_ [ class "container mx-auto flex justify-center align-center h-screen" ]
-        viewButtons
+    viewLayout
+        [ h1 [] [ text "Select the Amount of Players" ]
+        , div [] viewButtons
+        ]
 
 
 viewButtons : List (Html Msg)
@@ -165,7 +172,7 @@ viewButtons =
 
 viewBoard : GameState -> Html Msg
 viewBoard state =
-    main_ [ class "container mx-auto flex justify-center align-center h-screen" ]
+    viewLayout
         [ div [] [ text (String.fromInt state.totalPlayers) ]
         , div []
             (state.board
