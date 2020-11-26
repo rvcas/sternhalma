@@ -1,4 +1,4 @@
-module Utils exposing (indexToColor, mapToList)
+module Utils exposing (cx, indexToColor, mapToList)
 
 import Array exposing (Array)
 
@@ -31,3 +31,8 @@ mapToList func arr =
     arr
         |> Array.map func
         |> Array.toList
+
+
+cx : List String -> String
+cx classes =
+    String.join " " classes
