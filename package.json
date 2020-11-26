@@ -4,7 +4,7 @@
   "description": "Sternhalma in Elm",
   "main": "public/index.html",
   "scripts": {
-    "build": "elm make src/Main.elm --output=public/index.html",
+    "build": "elm make src/Main.elm --optimize --output=public/elm.js",
     "start": "elm reactor"
   },
   "repository": {
