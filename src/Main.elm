@@ -5,7 +5,7 @@ import Browser exposing (Document)
 import Html exposing (Html, button, div, h1, main_, text)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
-import Utils exposing (indexToColor, mapToList)
+import Utils exposing (cx, indexToColor, mapToList)
 
 
 
@@ -161,11 +161,14 @@ viewSelectPlayer _ =
 viewButtons : List (Html Msg)
 viewButtons =
     Array.repeat 6 0
-        |> Array.indexedMap
+        |> Array.indexedMap (\idx -> \_ -> idx)
+        |> Array.map
             (\idx ->
-                \_ ->
-                    button [ class (indexToColor idx), onClick (SetPlayers (idx + 1)) ]
-                        [ text (String.fromInt (idx + 1)) ]
+                button
+                    [ class (cx [ indexToColor idx, "py-4 px-8" ])
+                    , onClick (SetPlayers (idx + 1))
+                    ]
+                    [ text (String.fromInt (idx + 1)) ]
             )
         |> Array.toList
 
