@@ -5,6 +5,7 @@ import Browser exposing (Document)
 import Html exposing (Html, button, div, text)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
+import Utils exposing (indexToColor)
 
 
 
@@ -14,7 +15,7 @@ import Html.Events exposing (onClick)
 main : Program () Model Msg
 main =
     Browser.document
-        { init = \_ -> ( init, Cmd.none )
+        { init = init
         , subscriptions = \_ -> Sub.none
         , update = update
         , view = view
@@ -25,6 +26,10 @@ main =
 -- Model
 
 
+type alias PlayerId =
+    Int
+
+
 type alias Player =
     { id : PlayerId
     , score : Int
@@ -33,8 +38,8 @@ type alias Player =
 
 
 type alias Position =
-    { occupyingPlayer : Maybe Player
-    , scoringPlayer : Maybe Player
+    { occupyingPlayer : Maybe PlayerId
+    , scoringPlayer : Maybe PlayerId
     , index : Int
     , row : Int
     , col : Int
@@ -53,23 +58,19 @@ type Model
     | Playing GameState
 
 
-init : Model
-init =
-    SelectPlayers
+init : () -> ( Model, Cmd Msg )
+init _ =
+    ( SelectPlayers, Cmd.none )
 
 
 generatePlayers : Int -> Array Player
 generatePlayers count =
     Array.repeat count 0
-        |> Array.indexedMap (\idx -> \_ -> Player idx 0 "red")
+        |> Array.indexedMap (\idx -> \_ -> Player idx 0 (indexToColor idx))
 
 
 
 -- Update
-
-
-type alias PlayerId =
-    Int
 
 
 type Msg
@@ -103,7 +104,7 @@ update msg model =
                     )
 
         Reset ->
-            ( init, Cmd.none )
+            ( SelectPlayers, Cmd.none )
 
 
 updatePlayer : PlayerId -> Array Player -> (Player -> Player) -> Array Player
@@ -151,7 +152,7 @@ viewSelectPlayer _ =
             |> Array.indexedMap
                 (\idx ->
                     \_ ->
-                        button [ class "bg-red-400", onClick (SetPlayers (idx + 1)) ]
+                        button [ class (indexToColor idx), onClick (SetPlayers (idx + 1)) ]
                             [ text (String.fromInt (idx + 1)) ]
                 )
             |> Array.toList
