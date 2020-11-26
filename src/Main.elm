@@ -3,6 +3,7 @@ module Main exposing (Model, Msg(..), init, main, update, view)
 import Array exposing (Array)
 import Browser exposing (Document)
 import Html exposing (Html, button, div, text)
+import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 
 
@@ -150,7 +151,7 @@ viewSelectPlayer _ =
             |> Array.indexedMap
                 (\idx ->
                     \_ ->
-                        button [ onClick (SetPlayers (idx + 1)) ]
+                        button [ class "bg-red-400", onClick (SetPlayers (idx + 1)) ]
                             [ text (String.fromInt (idx + 1)) ]
                 )
             |> Array.toList
