@@ -1,4 +1,6 @@
-module Utils exposing (indexToColor)
+module Utils exposing (indexToColor, mapToList)
+
+import Array exposing (Array)
 
 
 indexToColor : Int -> String
@@ -22,3 +24,10 @@ indexToColor idx =
 
         _ ->
             "bg-yellow-200"
+
+
+mapToList : (a -> b) -> Array a -> List b
+mapToList func arr =
+    arr
+        |> Array.map func
+        |> Array.toList

@@ -2,10 +2,10 @@ module Main exposing (Model, Msg(..), init, main, update, view)
 
 import Array exposing (Array)
 import Browser exposing (Document)
-import Html exposing (Html, button, div, text)
+import Html exposing (Html, button, div, main_, text)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
-import Utils exposing (indexToColor)
+import Utils exposing (indexToColor, mapToList)
 
 
 
@@ -147,26 +147,29 @@ view model =
 
 viewSelectPlayer : () -> Html Msg
 viewSelectPlayer _ =
-    div []
-        (Array.repeat 6 0
-            |> Array.indexedMap
-                (\idx ->
-                    \_ ->
-                        button [ class (indexToColor idx), onClick (SetPlayers (idx + 1)) ]
-                            [ text (String.fromInt (idx + 1)) ]
-                )
-            |> Array.toList
-        )
+    main_ [ class "container mx-auto flex justify-center align-center h-screen" ]
+        viewButtons
+
+
+viewButtons : List (Html Msg)
+viewButtons =
+    Array.repeat 6 0
+        |> Array.indexedMap
+            (\idx ->
+                \_ ->
+                    button [ class (indexToColor idx), onClick (SetPlayers (idx + 1)) ]
+                        [ text (String.fromInt (idx + 1)) ]
+            )
+        |> Array.toList
 
 
 viewBoard : GameState -> Html Msg
 viewBoard state =
-    div []
+    main_ [ class "container mx-auto flex justify-center align-center h-screen" ]
         [ div [] [ text (String.fromInt state.totalPlayers) ]
         , div []
             (state.board
-                |> Array.map (viewRow state)
-                |> Array.toList
+                |> mapToList (viewRow state)
             )
         ]
 
@@ -175,8 +178,7 @@ viewRow : GameState -> Array (Maybe Position) -> Html Msg
 viewRow state row =
     div []
         (row
-            |> Array.map (viewCol state)
-            |> Array.toList
+            |> mapToList (viewCol state)
         )
 
 
