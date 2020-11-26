@@ -138,9 +138,7 @@ view model =
                 viewSelectPlayer ()
 
             Playing state ->
-                div []
-                    [ div [] [ text (String.fromInt state.totalPlayers) ]
-                    ]
+                viewBoard state
         ]
     }
 
@@ -157,3 +155,10 @@ viewSelectPlayer _ =
                 )
             |> Array.toList
         )
+
+
+viewBoard : GameState -> Html Msg
+viewBoard state =
+    div []
+        [ div [] [ text (String.fromInt state.totalPlayers) ]
+        ]
