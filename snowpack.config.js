@@ -9,6 +9,10 @@ module.exports = {
       "snowpack-plugin-elm",
       { verbose: false, debugger: "dev", optimize: "build" },
     ],
+    [
+      "@snowpack/plugin-build-script",
+      { cmd: "postcss", input: [".css"], output: [".css"] },
+    ],
   ],
   install: [],
   installOptions: {},

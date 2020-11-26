@@ -1,7 +1,7 @@
 import Elm from "./Main.elm";
 
-const node = document.getElementById("root");
+import "./styles.css";
 
-node.innerHTML = "";
+const node = document.getElementById("root");
 
 const app = Elm.Main.init({ node });
