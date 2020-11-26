@@ -1,0 +1,26 @@
+{
+  "name": "sternhalma",
+  "version": "1.0.0",
+  "description": "Sternhalma in Elm",
+  "main": "public/index.html",
+  "scripts": {
+    "build": "elm make src/Main.elm --output=public/index.html",
+    "start": "elm reactor"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rvcas/sternhalma.git"
+  },
+  "keywords": [
+    "elm"
+  ],
+  "author": "rvcas",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rvcas/sternhalma/issues"
+  },
+  "homepage": "https://sternhalma.rvcas.dev",
+  "devDependencies": {
+    "elm": "^0.19.1-3"
+  }
+}
