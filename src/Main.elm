@@ -25,7 +25,7 @@ main =
 
 
 type alias Player =
-    { id : Int
+    { id : PlayerId
     , score : Int
     , color : String
     }
@@ -43,6 +43,7 @@ type alias Position =
 type alias GameState =
     { totalPlayers : Int
     , players : Array Player
+    , board : Array (Maybe Position)
     }
 
 
@@ -56,6 +57,12 @@ init =
     SelectPlayers
 
 
+generatePlayers : Int -> Array Player
+generatePlayers count =
+    Array.repeat count 0
+        |> Array.indexedMap (\idx -> \_ -> Player idx 0 "red")
+
+
 
 -- Update
 
@@ -65,7 +72,8 @@ type alias PlayerId =
 
 
 type Msg
-    = SetPlayers Int
+    = Reset
+    | SetPlayers Int
     | SetScore PlayerId Int
 
 
@@ -73,24 +81,48 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         SetPlayers count ->
-            ( Playing { totalPlayers = count, players = Array.empty }, Cmd.none )
+            ( Playing
+                { totalPlayers = count
+                , players = generatePlayers count
+                , board = Array.empty
+                }
+            , Cmd.none
+            )
 
         SetScore playerId score ->
-            case model of
-                Playing state ->
+            updateCurrentGame model Cmd.none <|
+                \state ->
                     let
                         players =
-                            case Array.get playerId state.players of
-                                Just player ->
-                                    Array.set playerId { player | score = score } state.players
-
-                                Nothing ->
-                                    state.players
+                            updatePlayer playerId state.players <|
+                                \player -> { player | score = score }
                     in
-                    ( Playing { state | players = players }, Cmd.none )
+                    ( Playing { state | players = players }
+                    , Cmd.none
+                    )
 
-                _ ->
-                    ( model, Cmd.none )
+        Reset ->
+            ( init, Cmd.none )
+
+
+updatePlayer : PlayerId -> Array Player -> (Player -> Player) -> Array Player
+updatePlayer playerId players func =
+    case Array.get playerId players of
+        Just player ->
+            Array.set playerId (func player) players
+
+        Nothing ->
+            players
+
+
+updateCurrentGame : Model -> Cmd Msg -> (GameState -> ( Model, Cmd Msg )) -> ( Model, Cmd Msg )
+updateCurrentGame model cmd func =
+    case model of
+        Playing state ->
+            func state
+
+        _ ->
+            ( model, cmd )
 
 
 
@@ -103,10 +135,7 @@ view model =
     , body =
         [ case model of
             SelectPlayers ->
-                div []
-                    [ button [ onClick (SetPlayers 1) ] [ text "1" ]
-                    , button [ onClick (SetPlayers 4) ] [ text "4" ]
-                    ]
+                viewSelectPlayer ()
 
             Playing state ->
                 div []
@@ -114,3 +143,17 @@ view model =
                     ]
         ]
     }
+
+
+viewSelectPlayer : () -> Html Msg
+viewSelectPlayer _ =
+    div []
+        (Array.repeat 6 0
+            |> Array.indexedMap
+                (\idx ->
+                    \_ ->
+                        button [ onClick (SetPlayers (idx + 1)) ]
+                            [ text (String.fromInt (idx + 1)) ]
+                )
+            |> Array.toList
+        )
