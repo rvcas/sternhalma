@@ -44,7 +44,7 @@ type alias Position =
 type alias GameState =
     { totalPlayers : Int
     , players : Array Player
-    , board : Array (Maybe Position)
+    , board : Array (Array (Maybe Position))
     }
 
 
@@ -162,4 +162,29 @@ viewBoard : GameState -> Html Msg
 viewBoard state =
     div []
         [ div [] [ text (String.fromInt state.totalPlayers) ]
+        , div []
+            (state.board
+                |> Array.map (viewRow state)
+                |> Array.toList
+            )
         ]
+
+
+viewRow : GameState -> Array (Maybe Position) -> Html Msg
+viewRow state row =
+    div []
+        (row
+            |> Array.map (viewCol state)
+            |> Array.toList
+        )
+
+
+viewCol : GameState -> Maybe Position -> Html Msg
+viewCol _ col =
+    case col of
+        Just position ->
+            div []
+                [ text (String.fromInt position.index) ]
+
+        Nothing ->
+            div [] []
