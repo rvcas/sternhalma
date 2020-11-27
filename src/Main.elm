@@ -153,7 +153,7 @@ viewLayout =
 viewSelectPlayer : () -> Html Msg
 viewSelectPlayer _ =
     viewLayout
-        [ h1 [] [ text "Select the Amount of Players" ]
+        [ h1 [ class "font-mono text-2xl" ] [ text "Select the Amount of Players" ]
         , div [] viewButtons
         ]
 
@@ -165,7 +165,7 @@ viewButtons =
         |> Array.map
             (\idx ->
                 button
-                    [ class (cx [ indexToColor idx, "py-4 px-8" ])
+                    [ class (cx [ indexToColor idx, "rounded-full h-20 w-20 text-white text-lg" ])
                     , onClick (SetPlayers (idx + 1))
                     ]
                     [ text (String.fromInt (idx + 1)) ]

@@ -23,7 +23,7 @@ indexToColor idx =
             "bg-green-500"
 
         _ ->
-            "bg-yellow-200"
+            "bg-yellow-300"
 
 
 mapToList : (a -> b) -> Array a -> List b
