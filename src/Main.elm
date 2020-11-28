@@ -2,8 +2,8 @@ module Main exposing (Model, Msg(..), init, main, update, view)
 
 import Array exposing (Array, empty)
 import Browser exposing (Document)
-import Html exposing (Html, button, div, h1, main_, text)
-import Html.Attributes exposing (class)
+import Html exposing (Html, button, div, h1, main_, q, text)
+import Html.Attributes exposing (class, draggable)
 import Html.Events exposing (onClick)
 import Utils
     exposing
@@ -14,6 +14,10 @@ import Utils
         , cx
         , indexToColor
         , mapToList
+        , onDragEnd
+        , onDragOver
+        , onDragStart
+        , onDrop
         , topIncludes
         , topLeftIncludes
         , topRightIncludes
@@ -62,6 +66,7 @@ type alias GameState =
     , players : Array Player
     , board : Array Position
     , currentPlayer : Int
+    , beingDragged : Maybe Position
     }
 
 
@@ -320,6 +325,10 @@ type Msg
     = Reset
     | SetPlayers Int
     | SetScore PlayerId Int
+    | Drag Position
+    | DragEnd
+    | DragOver
+    | Drop Position
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -331,6 +340,7 @@ update msg model =
                 , players = generatePlayers count
                 , board = generateBoard count
                 , currentPlayer = 0
+                , beingDragged = Nothing
                 }
             , Cmd.none
             )
@@ -344,6 +354,51 @@ update msg model =
                                 \player -> { player | score = score }
                     in
                     ( Playing { state | players = players }
+                    , Cmd.none
+                    )
+
+        Drag position ->
+            updateCurrentGame model Cmd.none <|
+                \state ->
+                    ( Playing { state | beingDragged = Just position }, Cmd.none )
+
+        DragEnd ->
+            updateCurrentGame model Cmd.none <|
+                \state ->
+                    ( Playing { state | beingDragged = Nothing }, Cmd.none )
+
+        DragOver ->
+            ( model, Cmd.none )
+
+        Drop newPosition ->
+            updateCurrentGame model Cmd.none <|
+                \state ->
+                    let
+                        currentPosition =
+                            case state.beingDragged of
+                                Just ps ->
+                                    ps
+
+                                Nothing ->
+                                    Position Nothing Nothing 0 0
+
+                        newBoard =
+                            state.board
+                                |> Array.set
+                                    currentPosition.index
+                                    { currentPosition | occupyingPlayer = Nothing }
+                                |> Array.set
+                                    newPosition.index
+                                    { newPosition | occupyingPlayer = Just state.currentPlayer }
+
+                        nextPlayer =
+                            modBy 6 (state.currentPlayer + 1)
+                    in
+                    ( Playing
+                        { state
+                            | board = newBoard
+                            , currentPlayer = nextPlayer
+                        }
                     , Cmd.none
                     )
 
@@ -440,7 +495,7 @@ viewBoard state =
                     [ "Total Players: "
                     , String.fromInt state.totalPlayers
                     , ", Current Player: "
-                    , current.color
+                    , String.fromInt (current.id + 1)
                     ]
                 )
             ]
@@ -471,8 +526,27 @@ viewCol state current position =
                             (cx
                                 [ player.color
                                 , "border-black rounded-full h-12 w-12 border mx-0.5"
+                                , if player.id == current.id then
+                                    "cursor-move"
+
+                                  else
+                                    "cursor-default"
+                                , if player.id /= current.id then
+                                    "opacity-50"
+
+                                  else
+                                    ""
                                 ]
                             )
+                        , draggable
+                            (if player.id == current.id then
+                                "true"
+
+                             else
+                                "false"
+                            )
+                        , onDragStart (Drag position)
+                        , onDragEnd DragEnd
                         ]
                         []
 
@@ -487,5 +561,7 @@ viewCol state current position =
                         [ "border-black rounded-full h-12 w-12 border transparent mx-0.5"
                         ]
                     )
+                , onDragOver DragOver
+                , onDrop (Drop position)
                 ]
                 []

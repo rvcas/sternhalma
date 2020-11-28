@@ -7,12 +7,19 @@ module Utils exposing
     , cx
     , indexToColor
     , mapToList
+    , onDragEnd
+    , onDragOver
+    , onDragStart
+    , onDrop
     , topIncludes
     , topLeftIncludes
     , topRightIncludes
     )
 
 import Array exposing (Array)
+import Html exposing (Attribute)
+import Html.Events as Events
+import Json.Decode as Decode
 
 
 indexToColor : Int -> String
@@ -144,3 +151,27 @@ mapToList func arr =
 cx : List String -> String
 cx classes =
     String.join " " classes
+
+
+onDragStart : a -> Attribute a
+onDragStart msg =
+    Events.on "dragstart" <|
+        Decode.succeed msg
+
+
+onDragEnd : a -> Attribute a
+onDragEnd msg =
+    Events.on "dragend" <|
+        Decode.succeed msg
+
+
+onDragOver : a -> Attribute a
+onDragOver msg =
+    Events.preventDefaultOn "dragover" <|
+        Decode.succeed ( msg, True )
+
+
+onDrop : a -> Attribute a
+onDrop msg =
+    Events.preventDefaultOn "drop" <|
+        Decode.succeed ( msg, True )
