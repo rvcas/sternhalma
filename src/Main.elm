@@ -61,6 +61,7 @@ type alias GameState =
     { totalPlayers : Int
     , players : Array Player
     , board : Array Position
+    , currentPlayer : Int
     }
 
 
@@ -329,6 +330,7 @@ update msg model =
                 { totalPlayers = count
                 , players = generatePlayers count
                 , board = generateBoard count
+                , currentPlayer = 0
                 }
             , Cmd.none
             )
@@ -395,47 +397,95 @@ viewLayout =
 viewSelectPlayer : () -> Html Msg
 viewSelectPlayer _ =
     viewLayout
-        [ h1 [ class "font-mono text-2xl" ] [ text "Select the Amount of Players" ]
+        [ h1 [ class "font-mono text-2xl mb-12" ] [ text "Select the Amount of Players" ]
         , div [] viewButtons
         ]
 
 
 viewButtons : List (Html Msg)
 viewButtons =
-    Array.repeat 6 0
+    Array.repeat 5 0
         |> Array.indexedMap (\idx -> \_ -> idx)
         |> Array.map
             (\idx ->
                 button
-                    [ class (cx [ indexToColor idx, "rounded-full h-20 w-20 text-white text-lg" ])
-                    , onClick (SetPlayers (idx + 1))
+                    [ class
+                        (cx
+                            [ indexToColor idx
+                            , "rounded-full h-20 w-20 text-white text-lg mx-4 shadow-lg font-mono"
+                            ]
+                        )
+                    , onClick (SetPlayers (idx + 2))
                     ]
-                    [ text (String.fromInt (idx + 1)) ]
+                    [ text (String.fromInt (idx + 2)) ]
             )
         |> Array.toList
 
 
 viewBoard : GameState -> Html Msg
 viewBoard state =
+    let
+        current =
+            case Array.get state.currentPlayer state.players of
+                Just c ->
+                    c
+
+                Nothing ->
+                    Player 0 0 ""
+    in
     viewLayout
-        [ div [] [ text (String.fromInt state.totalPlayers) ]
-        , div []
+        [ div [ class "font-mono text-lg mb-8" ]
+            [ text
+                (String.concat
+                    [ "Total Players: "
+                    , String.fromInt state.totalPlayers
+                    , ", Current Player: "
+                    , current.color
+                    ]
+                )
+            ]
+        , div [ class "w-full" ]
             (state.board
                 |> group
-                |> List.map (viewRow state)
+                |> List.map (viewRow state current)
             )
         ]
 
 
-viewRow : GameState -> List Position -> Html Msg
-viewRow state row =
-    div []
+viewRow : GameState -> Player -> List Position -> Html Msg
+viewRow state current row =
+    div [ class "flex flex-row justify-center" ]
         (row
-            |> List.map (viewCol state)
+            |> List.map (viewCol state current)
         )
 
 
-viewCol : GameState -> Position -> Html Msg
-viewCol _ position =
-    div []
-        [ text (String.fromInt position.index) ]
+viewCol : GameState -> Player -> Position -> Html Msg
+viewCol state current position =
+    case position.occupyingPlayer of
+        Just playerId ->
+            case Array.get playerId state.players of
+                Just player ->
+                    div
+                        [ class
+                            (cx
+                                [ player.color
+                                , "border-black rounded-full h-12 w-12 border mx-0.5"
+                                ]
+                            )
+                        ]
+                        []
+
+                -- I don't think we'll get here
+                Nothing ->
+                    div [] [ text "probably shouldn't render" ]
+
+        Nothing ->
+            div
+                [ class
+                    (cx
+                        [ "border-black rounded-full h-12 w-12 border transparent mx-0.5"
+                        ]
+                    )
+                ]
+                []
