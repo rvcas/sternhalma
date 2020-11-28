@@ -392,7 +392,7 @@ update msg model =
                                     { newPosition | occupyingPlayer = Just state.currentPlayer }
 
                         nextPlayer =
-                            modBy 6 (state.currentPlayer + 1)
+                            modBy state.totalPlayers (state.currentPlayer + 1)
                     in
                     ( Playing
                         { state
