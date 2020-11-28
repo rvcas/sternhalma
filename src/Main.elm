@@ -379,6 +379,7 @@ update msg model =
                                 Just ps ->
                                     ps
 
+                                -- Not Really Possible
                                 Nothing ->
                                     Position Nothing Nothing 0 0
 
@@ -446,35 +447,46 @@ view model =
 
 viewLayout : List (Html Msg) -> Html Msg
 viewLayout =
-    main_ [ class "container mx-auto flex flex-col justify-center items-center h-screen" ]
+    main_
+        [ cx
+            [ "container mx-auto h-screen"
+            , "flex flex-col justify-center items-center"
+            ]
+        ]
 
 
 viewSelectPlayer : () -> Html Msg
 viewSelectPlayer _ =
     viewLayout
-        [ h1 [ class "font-mono text-2xl mb-12" ] [ text "Select the Amount of Players" ]
-        , div [] viewButtons
+        [ h1
+            [ class "font-mono text-2xl mb-12" ]
+            [ text "Select the Amount of Players" ]
+        , div
+            []
+            viewButtons
         ]
 
 
 viewButtons : List (Html Msg)
 viewButtons =
-    Array.repeat 5 0
-        |> Array.indexedMap (\idx -> \_ -> idx)
-        |> Array.map
-            (\idx ->
-                button
-                    [ class
-                        (cx
-                            [ indexToColor idx
-                            , "rounded-full h-20 w-20 text-white text-lg mx-4 shadow-lg font-mono"
-                            ]
-                        )
-                    , onClick (SetPlayers (idx + 2))
-                    ]
-                    [ text (String.fromInt (idx + 2)) ]
-            )
-        |> Array.toList
+    List.repeat 5 0
+        |> List.indexedMap (\idx -> \_ -> idx)
+        |> List.map viewButton
+
+
+viewButton : Int -> Html Msg
+viewButton idx =
+    button
+        [ cx
+            [ indexToColor idx
+            , "rounded-full mx-4"
+            , "h-20 w-20"
+            , "font-mono text-white text-lg"
+            , "shadow-lg"
+            ]
+        , onClick (SetPlayers (idx + 2))
+        ]
+        [ text (String.fromInt (idx + 2)) ]
 
 
 viewBoard : GameState -> Html Msg
@@ -522,22 +534,20 @@ viewCol state current position =
             case Array.get playerId state.players of
                 Just player ->
                     div
-                        [ class
-                            (cx
-                                [ player.color
-                                , "border-black rounded-full h-12 w-12 border mx-0.5"
-                                , if player.id == current.id then
-                                    "cursor-move"
+                        [ cx
+                            [ player.color
+                            , "border-black rounded-full h-12 w-12 border mx-0.5"
+                            , if player.id == current.id then
+                                "cursor-move"
 
-                                  else
-                                    "cursor-default"
-                                , if player.id /= current.id then
-                                    "opacity-50"
+                              else
+                                "cursor-default"
+                            , if player.id /= current.id then
+                                "opacity-50"
 
-                                  else
-                                    ""
-                                ]
-                            )
+                              else
+                                ""
+                            ]
                         , draggable
                             (if player.id == current.id then
                                 "true"
@@ -556,11 +566,10 @@ viewCol state current position =
 
         Nothing ->
             div
-                [ class
-                    (cx
-                        [ "border-black rounded-full h-12 w-12 border transparent mx-0.5"
-                        ]
-                    )
+                [ cx
+                    [ "border-black rounded-full border"
+                    , "h-12 w-12 transparent mx-0.5"
+                    ]
                 , onDragOver DragOver
                 , onDrop (Drop position)
                 ]

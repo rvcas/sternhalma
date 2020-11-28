@@ -18,6 +18,7 @@ module Utils exposing
 
 import Array exposing (Array)
 import Html exposing (Attribute)
+import Html.Attributes exposing (class)
 import Html.Events as Events
 import Json.Decode as Decode
 
@@ -148,9 +149,9 @@ mapToList func arr =
         |> Array.toList
 
 
-cx : List String -> String
+cx : List String -> Attribute msg
 cx classes =
-    String.join " " classes
+    class (String.join " " classes)
 
 
 onDragStart : a -> Attribute a
