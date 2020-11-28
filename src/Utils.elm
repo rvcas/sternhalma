@@ -40,32 +40,32 @@ indexToColor idx =
 
 topIncludes : Int -> Bool
 topIncludes i =
-    List.any ((==) i) [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
+    List.any ((==) i) [ 2, 4, 5, 7, 8, 9, 11, 12, 13, 14 ]
 
 
 topRightIncludes : Int -> Bool
 topRightIncludes i =
-    List.any ((==) i) [ 19, 20, 21, 22, 32, 33, 34, 44, 45, 55 ]
+    List.any ((==) i) [ 25, 26, 27, 28, 39, 40, 41, 52, 53, 64 ]
 
 
 bottomRightIncludes : Int -> Bool
 bottomRightIncludes i =
-    List.any ((==) i) [ 74, 84, 85, 95, 96, 97, 107, 108, 109, 110 ]
+    List.any ((==) i) [ 85, 96, 97, 108, 109, 110, 121, 122, 123, 124 ]
 
 
 bottomIncludes : Int -> Bool
 bottomIncludes i =
-    List.any ((==) i) [ 111, 112, 113, 114, 115, 116, 117, 118, 119, 120 ]
+    List.any ((==) i) [ 126, 127, 128, 129, 131, 132, 133, 135, 136, 138 ]
 
 
 bottomLeftIncludes : Int -> Bool
 bottomLeftIncludes i =
-    List.any ((==) i) [ 65, 75, 76, 86, 87, 88, 98, 99, 100, 101 ]
+    List.any ((==) i) [ 76, 87, 88, 99, 100, 101, 112, 113, 114, 115 ]
 
 
 topLeftIncludes : Int -> Bool
 topLeftIncludes i =
-    List.any ((==) i) [ 10, 11, 12, 13, 23, 24, 25, 35, 36, 46 ]
+    List.any ((==) i) [ 16, 17, 18, 19, 30, 31, 32, 43, 44, 55 ]
 
 
 between : comparable -> comparable -> comparable -> Bool
@@ -91,19 +91,19 @@ assignRow i =
     else if bw 6 9 then
         3
 
-    else if bw 10 22 then
+    else if bw 10 14 then
         4
 
-    else if bw 23 34 then
+    else if bw 15 28 then
         5
 
-    else if bw 35 45 then
+    else if bw 29 41 then
         6
 
-    else if bw 46 55 then
+    else if bw 42 53 then
         7
 
-    else if bw 56 64 then
+    else if bw 54 64 then
         8
 
     else if bw 65 74 then
@@ -118,17 +118,20 @@ assignRow i =
     else if bw 98 110 then
         12
 
-    else if bw 111 114 then
+    else if bw 111 124 then
         13
 
-    else if bw 115 117 then
+    else if bw 125 129 then
         14
 
-    else if bw 118 119 then
+    else if bw 130 133 then
         15
 
-    else
+    else if bw 134 136 then
         16
+
+    else
+        17
 
 
 mapToList : (a -> b) -> Array a -> List b

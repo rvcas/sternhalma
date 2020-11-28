@@ -83,7 +83,7 @@ generatePlayers count =
 
 emptyBoard : Array Int
 emptyBoard =
-    Array.repeat 121 0
+    Array.repeat 139 0
         |> Array.indexedMap (\idx -> \_ -> idx)
 
 
