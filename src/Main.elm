@@ -1,11 +1,23 @@
 module Main exposing (Model, Msg(..), init, main, update, view)
 
-import Array exposing (Array)
+import Array exposing (Array, empty)
 import Browser exposing (Document)
 import Html exposing (Html, button, div, h1, main_, text)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
-import Utils exposing (cx, indexToColor, mapToList)
+import Utils
+    exposing
+        ( assignRow
+        , bottomIncludes
+        , bottomLeftIncludes
+        , bottomRightIncludes
+        , cx
+        , indexToColor
+        , mapToList
+        , topIncludes
+        , topLeftIncludes
+        , topRightIncludes
+        )
 
 
 
@@ -40,16 +52,15 @@ type alias Player =
 type alias Position =
     { occupyingPlayer : Maybe PlayerId
     , scoringPlayer : Maybe PlayerId
-    , index : Int
     , row : Int
-    , col : Int
+    , index : Int
     }
 
 
 type alias GameState =
     { totalPlayers : Int
     , players : Array Player
-    , board : Array (Array (Maybe Position))
+    , board : Array Position
     }
 
 
@@ -69,6 +80,237 @@ generatePlayers count =
         |> Array.indexedMap (\idx -> \_ -> Player idx 0 (indexToColor idx))
 
 
+emptyBoard : Array Int
+emptyBoard =
+    Array.repeat 121 0
+        |> Array.indexedMap (\idx -> \_ -> idx)
+
+
+twoPlayers : Int -> Position
+twoPlayers idx =
+    { occupyingPlayer =
+        if topIncludes idx then
+            Just 0
+
+        else if bottomIncludes idx then
+            Just 1
+
+        else
+            Nothing
+    , scoringPlayer =
+        if bottomIncludes idx then
+            Just 0
+
+        else if topIncludes idx then
+            Just 1
+
+        else
+            Nothing
+    , row = assignRow idx
+    , index = idx
+    }
+
+
+threePlayers : Int -> Position
+threePlayers idx =
+    { occupyingPlayer =
+        if topLeftIncludes idx then
+            Just 0
+
+        else if topRightIncludes idx then
+            Just 1
+
+        else if bottomIncludes idx then
+            Just 2
+
+        else
+            Nothing
+    , scoringPlayer =
+        if bottomRightIncludes idx then
+            Just 0
+
+        else if bottomLeftIncludes idx then
+            Just 1
+
+        else if topIncludes idx then
+            Just 2
+
+        else
+            Nothing
+    , row = assignRow idx
+    , index = idx
+    }
+
+
+fourPlayers : Int -> Position
+fourPlayers idx =
+    { occupyingPlayer =
+        if topLeftIncludes idx then
+            Just 0
+
+        else if topRightIncludes idx then
+            Just 1
+
+        else if bottomRightIncludes idx then
+            Just 2
+
+        else if bottomLeftIncludes idx then
+            Just 3
+
+        else
+            Nothing
+    , scoringPlayer =
+        if bottomRightIncludes idx then
+            Just 0
+
+        else if bottomLeftIncludes idx then
+            Just 1
+
+        else if topLeftIncludes idx then
+            Just 2
+
+        else if topRightIncludes idx then
+            Just 3
+
+        else
+            Nothing
+    , row = assignRow idx
+    , index = idx
+    }
+
+
+fivePlayers : Int -> Position
+fivePlayers idx =
+    { occupyingPlayer =
+        if topLeftIncludes idx then
+            Just 0
+
+        else if topIncludes idx then
+            Just 1
+
+        else if topRightIncludes idx then
+            Just 2
+
+        else if bottomRightIncludes idx then
+            Just 3
+
+        else if bottomLeftIncludes idx then
+            Just 4
+
+        else
+            Nothing
+    , scoringPlayer =
+        if bottomRightIncludes idx then
+            Just 0
+
+        else if bottomIncludes idx then
+            Just 1
+
+        else if bottomLeftIncludes idx then
+            Just 2
+
+        else if topLeftIncludes idx then
+            Just 3
+
+        else if topRightIncludes idx then
+            Just 4
+
+        else
+            Nothing
+    , row = assignRow idx
+    , index = idx
+    }
+
+
+sixPlayers : Int -> Position
+sixPlayers idx =
+    { occupyingPlayer =
+        if topLeftIncludes idx then
+            Just 0
+
+        else if topIncludes idx then
+            Just 1
+
+        else if topRightIncludes idx then
+            Just 2
+
+        else if bottomRightIncludes idx then
+            Just 3
+
+        else if bottomIncludes idx then
+            Just 4
+
+        else if bottomLeftIncludes idx then
+            Just 5
+
+        else
+            Nothing
+    , scoringPlayer =
+        if bottomRightIncludes idx then
+            Just 0
+
+        else if bottomIncludes idx then
+            Just 1
+
+        else if bottomLeftIncludes idx then
+            Just 2
+
+        else if topLeftIncludes idx then
+            Just 3
+
+        else if topIncludes idx then
+            Just 4
+
+        else if topRightIncludes idx then
+            Just 5
+
+        else
+            Nothing
+    , row = assignRow idx
+    , index = idx
+    }
+
+
+generateBoard : Int -> Array Position
+generateBoard count =
+    case count of
+        3 ->
+            Array.map threePlayers emptyBoard
+
+        4 ->
+            Array.map fourPlayers emptyBoard
+
+        5 ->
+            Array.map fivePlayers emptyBoard
+
+        6 ->
+            Array.map sixPlayers emptyBoard
+
+        _ ->
+            Array.map twoPlayers emptyBoard
+
+
+group : Array Position -> List (List Position)
+group items =
+    items
+        |> Array.toList
+        |> List.foldr
+            (\x acc ->
+                case acc of
+                    [] ->
+                        [ ( x, [] ) ]
+
+                    ( y, rest ) :: groups ->
+                        if x.row == y.row then
+                            ( x, y :: rest ) :: groups
+
+                        else
+                            ( x, [] ) :: acc
+            )
+            []
+        |> List.map (\( _, row ) -> row)
+
+
 
 -- Update
 
@@ -86,7 +328,7 @@ update msg model =
             ( Playing
                 { totalPlayers = count
                 , players = generatePlayers count
-                , board = Array.empty
+                , board = generateBoard count
                 }
             , Cmd.none
             )
@@ -179,25 +421,21 @@ viewBoard state =
         [ div [] [ text (String.fromInt state.totalPlayers) ]
         , div []
             (state.board
-                |> mapToList (viewRow state)
+                |> group
+                |> List.map (viewRow state)
             )
         ]
 
 
-viewRow : GameState -> Array (Maybe Position) -> Html Msg
+viewRow : GameState -> List Position -> Html Msg
 viewRow state row =
     div []
         (row
-            |> mapToList (viewCol state)
+            |> List.map (viewCol state)
         )
 
 
-viewCol : GameState -> Maybe Position -> Html Msg
-viewCol _ col =
-    case col of
-        Just position ->
-            div []
-                [ text (String.fromInt position.index) ]
-
-        Nothing ->
-            div [] []
+viewCol : GameState -> Position -> Html Msg
+viewCol _ position =
+    div []
+        [ text (String.fromInt position.index) ]
